@@ -1,7 +1,9 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SiteNav } from "@/components/SiteNav";
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession();
@@ -10,39 +12,64 @@ export default function OnboardingPage() {
 
   async function pickRole(role: "EMPLOYER" | "DEVELOPER") {
     setLoading(true);
-    await fetch("/api/user/role", {
-      method: "PATCH",
-      body: JSON.stringify({ role }),
-      headers: { "Content-Type": "application/json" },
-    });
-    await update(); // refresh session
+    await Promise.all([
+      fetch("/api/user/role", {
+        method: "PATCH",
+        body: JSON.stringify({ role }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      fetch("/api/user/onboard", {
+        method: "PATCH",
+        body: JSON.stringify({ onboarded: true }),
+        headers: { "Content-Type": "application/json" },
+      }),
+    ]);
+
+    await update();
+
     router.push(role === "EMPLOYER" ? "/employer/company/new" : "/jobs");
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center max-w-md">
-        <h1 className="text-2xl font-bold mb-2">Welcome{session?.user?.name ? `, ${session.user.name}` : ""}!</h1>
-        <p className="text-gray-500 mb-8">How are you using DevBoard?</p>
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => pickRole("DEVELOPER")}
-            disabled={loading}
-            className="border-2 rounded-xl p-6 hover:border-black transition-colors text-left"
-          >
-            <div className="text-3xl mb-2">👨‍💻</div>
-            <div className="font-semibold">I&apos;m looking for work</div>
-            <div className="text-sm text-gray-500 mt-1">Browse and apply to jobs</div>
-          </button>
-          <button
-            onClick={() => pickRole("EMPLOYER")}
-            disabled={loading}
-            className="border-2 rounded-xl p-6 hover:border-black transition-colors text-left"
-          >
-            <div className="text-3xl mb-2">🏢</div>
-            <div className="font-semibold">I&apos;m hiring</div>
-            <div className="text-sm text-gray-500 mt-1">Post jobs and find talent</div>
-          </button>
+    <div className="page flex flex-col">
+      <SiteNav showAuth={false} />
+      <div
+        style={{ padding: 50 }}
+        className="flex items-start justify-center w-full flex-1 p-50"
+      >
+        <div style={{ textAlign: "center", maxWidth: 480, width: "100%" }}>
+          <p className="text-[#999]  text-lg">Onboarding</p>
+          <h1 className="heading-page">
+            Welcome{session?.user?.name ? `, ${session.user.name}` : ""}
+          </h1>
+          <p className="page-subtitle">How are you using FindWork?</p>
+
+          <div className="onboarding-grid">
+            <button
+              type="button"
+              onClick={() => pickRole("DEVELOPER")}
+              disabled={loading}
+              className="onboarding-option"
+            >
+              <p className="onboarding-option__title">
+                I&apos;m looking for work
+              </p>
+              <p className="onboarding-option__desc">
+                Browse and apply to jobs
+              </p>
+            </button>
+            <button
+              type="button"
+              onClick={() => pickRole("EMPLOYER")}
+              disabled={loading}
+              className="onboarding-option"
+            >
+              <p className="onboarding-option__title">I&apos;m hiring</p>
+              <p className="onboarding-option__desc">
+                Post jobs and find talent
+              </p>
+            </button>
+          </div>
         </div>
       </div>
     </div>

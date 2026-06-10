@@ -1,7 +1,14 @@
 "use client";
+
 import { useState } from "react";
 
-export default function ApplyButton({ jobId, alreadyApplied }: { jobId: string; alreadyApplied: boolean }) {
+export default function ApplyButton({
+  jobId,
+  alreadyApplied,
+}: {
+  jobId: string;
+  alreadyApplied: boolean;
+}) {
   const [applied, setApplied] = useState(alreadyApplied);
   const [open, setOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
@@ -19,40 +26,59 @@ export default function ApplyButton({ jobId, alreadyApplied }: { jobId: string; 
     setLoading(false);
   }
 
-  if (applied) return (
-    <button disabled className="bg-green-100 text-green-700 px-8 py-3 rounded-lg font-medium">
-      ✓ Applied
-    </button>
-  );
+  if (applied) {
+    return (
+      <button type="button" disabled className="btn btn-secondary">
+        Applied
+      </button>
+    );
+  }
 
   return (
-    <>
-      <button onClick={() => setOpen(true)} className="bg-black text-white px-8 py-3 rounded-lg font-medium">
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="btn btn-primary"
+      >
         Apply for this role
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
-            <h2 className="text-xl font-bold mb-4">Apply for this role</h2>
+        <div className="apply-panel">
+          <h2 className="apply-panel__title">Apply for this role</h2>
+          <div className="form-field" style={{ marginBottom: 0 }}>
+            <label htmlFor="coverLetter" className="form-label">
+              Cover letter
+            </label>
             <textarea
+              id="coverLetter"
               value={coverLetter}
-              onChange={e => setCoverLetter(e.target.value)}
-              placeholder="Cover letter (optional)"
+              onChange={(e) => setCoverLetter(e.target.value)}
+              placeholder="Optional"
               rows={6}
-              className="w-full border rounded px-3 py-2 mb-4"
+              className="textarea"
             />
-            <div className="flex gap-3">
-              <button onClick={handleApply} disabled={loading} className="bg-black text-white px-6 py-2 rounded disabled:opacity-50">
-                {loading ? "Submitting..." : "Submit application"}
-              </button>
-              <button onClick={() => setOpen(false)} className="border px-6 py-2 rounded">
-                Cancel
-              </button>
-            </div>
+          </div>
+          <div className="apply-actions">
+            <button
+              type="button"
+              onClick={handleApply}
+              disabled={loading}
+              className="btn btn-primary"
+            >
+              {loading ? "Submitting..." : "Submit application"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -1,9 +1,12 @@
-import React from "react";
 import { db } from "@/lib/db";
 import { JobType } from "@prisma/client";
 import Link from "next/link";
+import { PageShell } from "@/components/PageShell";
+import { formatJobType } from "@/lib/format";
 
 export const revalidate = 60;
+
+const JOB_TYPES = Object.values(JobType);
 
 type JobsSearchParams = {
   q?: string | string[];
@@ -15,7 +18,7 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function JobsPage({
+export default async function EmployerJobsPage({
   searchParams,
 }: {
   searchParams: Promise<JobsSearchParams>;
@@ -47,38 +50,98 @@ export default async function JobsPage({
   });
 
   return (
-    <main className="max-w-4xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-2">Tech Jobs in Africa</h1>
-      <p className="text-gray-500 mb-8">{jobs.length} open positions</p>
+    <PageShell active="jobs" medium>
+      <header className="page-header">
+        <p className="label-upper">Job listings</p>
+        <h1 className="heading-page">Tech jobs in Africa</h1>
+        <p className="page-subtitle">
+          {jobs.length} open {jobs.length === 1 ? "position" : "positions"}
+        </p>
+      </header>
 
-      <form className="flex gap-2 mb-8">
-        <input name="q" defaultValue={q} placeholder="Search jobs or skills..." className="flex-1 border rounded px-3 py-2" />
-        <input name="location" defaultValue={location} placeholder="Location" className="border rounded px-3 py-2 w-40" />
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded">Search</button>
+      <form className="search-panel">
+        <div className="search-panel__grid">
+          <div className="form-field search-panel__field">
+            <label htmlFor="q" className="form-label">
+              Search
+            </label>
+            <input
+              id="q"
+              name="q"
+              defaultValue={q}
+              placeholder="Role or skill"
+              className="input"
+            />
+          </div>
+          <div className="form-field search-panel__field">
+            <label htmlFor="location" className="form-label">
+              Location
+            </label>
+            <input
+              id="location"
+              name="location"
+              defaultValue={location}
+              placeholder="City or remote"
+              className="input"
+            />
+          </div>
+          <div className="form-field search-panel__field">
+            <label htmlFor="type" className="form-label">
+              Type
+            </label>
+            <select id="type" name="type" defaultValue={selectedType ?? ""} className="select">
+              <option value="">All types</option>
+              {JOB_TYPES.map((jobType) => (
+                <option key={jobType} value={jobType}>
+                  {formatJobType(jobType)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Search
+          </button>
+        </div>
       </form>
 
-      <div className="space-y-4">
-        {jobs.map(job => (
-          <Link key={job.id} href={`/jobs/${job.slug}`} className="block border rounded-lg p-4 hover:border-black transition-colors">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="font-semibold text-lg">{job.title}</h2>
-                <p className="text-gray-600">{job.company.name} · {job.location}</p>
-                <div className="flex gap-2 mt-2 flex-wrap">
-                  <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{job.type.replace("_", " ")}</span>
-                  {job.salaryRange && <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">{job.salaryRange}</span>}
-                  {job.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{tag}</span>
-                  ))}
+      {jobs.length > 0 ? (
+        <section className="jobs-section">
+          <p className="jobs-section__label">Results</p>
+          <div className="jobs-list">
+            {jobs.map((job) => (
+              <Link
+                key={job.id}
+                href={`/jobs/${job.slug}`}
+                className="jobs-list__link"
+              >
+                <div>
+                  <h2 className="jobs-list__title">{job.title}</h2>
+                  <p className="jobs-list__company">
+                    {job.company.name} · {job.location}
+                  </p>
+                  <p className="tag-line">
+                    {formatJobType(job.type)}
+                    {job.salaryRange ? ` · ${job.salaryRange}` : ""}
+                    {job.tags.length > 0
+                      ? ` · ${job.tags.slice(0, 4).join(" · ")}`
+                      : ""}
+                  </p>
                 </div>
-              </div>
-              <span className="text-xs text-gray-400 whitespace-nowrap ml-4">
-                {new Date(job.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </main>
+                <time
+                  className="jobs-list__date"
+                  dateTime={job.createdAt.toISOString()}
+                >
+                  {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </time>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </PageShell>
   );
 }

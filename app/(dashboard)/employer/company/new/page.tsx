@@ -1,6 +1,8 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageShell } from "@/components/PageShell";
 
 export default function NewCompanyPage() {
   const router = useRouter();
@@ -8,95 +10,113 @@ export default function NewCompanyPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
-async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
-    const form = new FormData(e.currentTarget);
+    try {
+      const form = new FormData(e.currentTarget);
 
-    let logoUrl = "";
-    if (logoFile) {
-      const uploadForm = new FormData();
-      uploadForm.append("file", logoFile);
+      let logoUrl = "";
+      if (logoFile) {
+        const uploadForm = new FormData();
+        uploadForm.append("file", logoFile);
 
-      const uploadRes = await fetch("/api/upload", {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadForm,
+        });
+
+        if (!uploadRes.ok) throw new Error("Logo upload failed");
+
+        const { publicUrl } = await uploadRes.json();
+        logoUrl = publicUrl;
+      }
+
+      const companyRes = await fetch("/api/companies", {
         method: "POST",
-        body: uploadForm,
+        body: JSON.stringify({
+          name: form.get("name"),
+          website: form.get("website"),
+          location: form.get("location"),
+          about: form.get("about"),
+          logoUrl,
+        }),
+        headers: { "Content-Type": "application/json" },
       });
 
-      if (!uploadRes.ok) throw new Error("Logo upload failed");
+      if (!companyRes.ok) throw new Error("Company creation failed");
 
-      const { publicUrl } = await uploadRes.json();
-      logoUrl = publicUrl;
+      router.push("/employer/jobs/new");
+    } catch {
+      setError("Could not create the company. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    const companyRes = await fetch("/api/companies", {
-      method: "POST",
-      body: JSON.stringify({
-        name: form.get("name"),
-        website: form.get("website"),
-        location: form.get("location"),
-        about: form.get("about"),
-        logoUrl,
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!companyRes.ok) throw new Error("Company creation failed");
-
-    router.push("/employer/jobs/new");
-  } catch {
-    setError("Could not create the company. Please try again.");
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
-    <div className="max-w-lg mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">Create your company profile</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          placeholder="Company name"
-          required
-          className="w-full border rounded px-3 py-2"
-        />
-        <input
-          name="website"
-          placeholder="Website URL"
-          className="w-full border rounded px-3 py-2"
-        />
-        <input
-          name="location"
-          placeholder="Location (e.g. Lagos, Nigeria)"
-          className="w-full border rounded px-3 py-2"
-        />
-        <textarea
-          name="about"
-          placeholder="About your company"
-          rows={4}
-          className="w-full border rounded px-3 py-2"
-        />
-        <div>
-          <label className="block text-sm mb-1">Company logo</label>
+    <PageShell narrow>
+      <p className="label-upper">Employer setup</p>
+      <h1 className="heading-page">Create your company profile</h1>
+      <p className="page-subtitle">
+        Tell developers about your company before posting jobs.
+      </p>
+
+      <form onSubmit={handleSubmit} className="stack-16">
+        <div className="form-field">
+          <label htmlFor="name" className="form-label">
+            Company name
+          </label>
+          <input id="name" name="name" required className="input" />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="website" className="form-label">
+            Website
+          </label>
+          <input id="website" name="website" className="input" />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="location" className="form-label">
+            Location
+          </label>
           <input
+            id="location"
+            name="location"
+            placeholder="Lagos, Nigeria"
+            className="input"
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="about" className="form-label">
+            About
+          </label>
+          <textarea id="about" name="about" rows={4} className="textarea" />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="logo" className="form-label">
+            Company logo
+          </label>
+          <input
+            id="logo"
             type="file"
             accept="image/*"
+            className="input"
             onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-black text-white px-6 py-2 rounded disabled:opacity-50"
-        >
+
+        <button type="submit" disabled={loading} className="btn btn-primary">
           {loading ? "Creating..." : "Create company"}
         </button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        {error ? <p className="form-error">{error}</p> : null}
       </form>
-    </div>
+    </PageShell>
   );
 }

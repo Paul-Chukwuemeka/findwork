@@ -1,5 +1,7 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import { PageShell } from "@/components/PageShell";
 
 type ApiKey = {
   id: string;
@@ -45,53 +47,41 @@ export default function ApiKeysPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-2">API Keys</h1>
-      <p className="text-gray-500 mb-6 text-sm">
-        Use these keys to access the DevBoard public API.
-        <br />
-        Pass as:{" "}
-        <code className="bg-gray-100 px-1 rounded">
-          Authorization: Bearer &lt;key&gt;
-        </code>
+    <PageShell medium>
+      <h1 className="heading-page">API keys</h1>
+      <p className="page-subtitle">
+        Use these keys to access the FindWork public API. Pass as:{" "}
+        <code className="code">Authorization: Bearer &lt;key&gt;</code>
       </p>
 
       {newKey && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-green-800 mb-1">
-            Key generated — copy it now, it won't be shown again
+        <div className="notice">
+          <p className="notice__title">
+            Key generated — copy it now, it won&apos;t be shown again
           </p>
-          <code className="text-xs break-all text-green-900">{newKey}</code>
+          <code className="code-block">{newKey}</code>
         </div>
       )}
 
-      <div className="flex gap-2 mb-8">
+      <div className="form-row" style={{ marginBottom: 32 }}>
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="Key label (e.g. My App)"
-          className="flex-1 border rounded px-3 py-2"
+          className="input"
         />
-        <button
-          onClick={generate}
-          className="bg-black text-white px-4 py-2 rounded"
-        >
+        <button type="button" onClick={generate} className="btn btn-primary">
           Generate key
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="stack-12">
         {keys.map((k) => (
-          <div
-            key={k.id}
-            className="border rounded-lg p-4 flex items-center justify-between"
-          >
+          <div key={k.id} className="card row-between">
             <div>
-              <p className="font-medium">{k.label || "Unnamed key"}</p>
-              <p className="text-xs text-gray-400 font-mono">
-                {k.key.slice(0, 16)}...
-              </p>
-              <p className="text-xs text-gray-400">
+              <p className="card-title">{k.label || "Unnamed key"}</p>
+              <p className="meta">{k.key.slice(0, 16)}...</p>
+              <p className="meta">
                 Last used:{" "}
                 {k.lastUsed
                   ? new Date(k.lastUsed).toLocaleDateString()
@@ -99,14 +89,15 @@ export default function ApiKeysPage() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => deleteKey(k.id)}
-              className="text-red-500 text-sm hover:underline"
+              className="btn btn-secondary"
             >
               Revoke
             </button>
           </div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }
