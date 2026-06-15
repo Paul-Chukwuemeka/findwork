@@ -187,7 +187,7 @@ export function AuthForm({
                   {viewPassword ? "Viewing" : "not viewing"}
                 </button>
                 <input
-                  id="email"
+                  id="password"
                   type={viewPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -197,6 +197,17 @@ export function AuthForm({
                   className="input"
                 />
               </label>
+              {!isSignup && (
+                <div style={{ textAlign: "right", marginTop: "-8px", marginBottom: "16px" }}>
+                  <Link
+                    href={`/forgot-password?email=${encodeURIComponent(email)}`}
+                    className="site-nav__link"
+                    style={{ fontSize: "12px", textDecoration: "underline" }}
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
               {isSignup && (
                 <label htmlFor="name" className="form-label">
                   Your Name
@@ -231,6 +242,7 @@ export function AuthForm({
       ) : null}
 
       <p className="auth-footer">
+        
         {isSignup ? (
           <>
             Already have an account?{" "}

@@ -1,7 +1,6 @@
 @import "tailwindcss";
 /* FindWork — Editorial minimal design system */
 
-
 html {
   height: 100%;
 }
@@ -80,7 +79,7 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #999;
-  margin: 0 0 12px; 
+  margin: 0 0 12px;
 }
 
 .meta {
@@ -98,7 +97,6 @@ a {
 .page {
   min-height: 100vh;
   background: #ffffff;
-  
 }
 
 .page-inner {
@@ -206,9 +204,8 @@ a {
   color: #555;
   text-decoration: none;
   transition: color 0.15s ease;
-  span{
-  text-transform: capitalize;
-
+  span {
+    text-transform: capitalize;
   }
 }
 
@@ -246,7 +243,7 @@ a {
     background 0.15s ease,
     border-color 0.15s ease;
 
-  *{
+  * {
     text-align: center;
   }
 }
@@ -259,15 +256,15 @@ a {
 .btn-primary {
   background: #111;
   color: #ffffff;
-    .bars{
-    background-color: #111; 
+  .bars {
+    background-color: #111;
   }
 }
 
 .btn-primary:hover:not(:disabled) {
   background: #555;
 
-  .bars{
+  .bars {
     background-color: #555;
   }
 }
@@ -293,7 +290,7 @@ a {
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap:5px;
+  gap: 5px;
 }
 
 .form-label {
@@ -593,8 +590,24 @@ a {
   text-align: center;
   margin-top: 32px;
 }
+.auth-forget {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  margin-top: 10px;
+}
 
 .auth-footer a {
+  color: #111;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.auth-forget a {
   color: #111;
   font-weight: 500;
   text-decoration: none;
