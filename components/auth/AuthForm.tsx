@@ -1,12 +1,10 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { checkUserExists } from "@/utils/checkUserExists";
 import Loader from "../loader";
-import SignupPage from "@/app/signup/page";
 
 type Mode = "login" | "signup";
 
@@ -29,6 +27,10 @@ function setAuthIntent(mode: Mode) {
   document.cookie = `auth_intent=${mode}; path=/; max-age=300; SameSite=Lax`;
 }
 
+function dashboardHref(role?: string) {
+  return role === "EMPLOYER" ? "/employer/jobs/new" : "/developer/dashboard";
+}
+
 export function AuthForm({
   mode,
   redirectTo = "/onboarding",
@@ -49,6 +51,12 @@ export function AuthForm({
   const [viewPassword, setViewPassword] = useState<boolean>(false);
 
   const isSignup = mode === "signup";
+  const hasExplicitRedirect = redirectTo !== "/onboarding";
+  const authSwitchSearch = hasExplicitRedirect
+    ? `?callbackUrl=${encodeURIComponent(redirectTo)}`
+    : "";
+
+  const router = useRouter();
 
   async function handleGoogle() {
     setError("");
@@ -65,7 +73,7 @@ export function AuthForm({
         const res = await fetch(
           `/api/auth/user-exists?email=${encodeURIComponent(email)}`,
         );
-        const {exists} = await res.json()
+        const { exists } = await res.json();
 
         if (isSignup && exists) {
           throw new Error("There is already an account with this email");
@@ -75,32 +83,47 @@ export function AuthForm({
           setPhase(1);
         }
       } else {
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-          }),
-        });
-        console.log(res)
-        if (!res?.ok) {
-          console.log(res);
-          const data = await res.text();
-          console.log(data);
-          throw new Error(data);
+        if (isSignup) {
+          const registration = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password, name }),
+          });
+
+          if (!registration.ok) {
+            const payload = await registration.json().catch(() => null);
+            throw new Error(payload?.error ?? "Could not create account");
+          }
         }
-        await signIn("credentials", {
+
+        const result = await signIn("credentials", {
           email,
           password,
-          name,
-          redirectTo,
+          redirect: false,
         });
+
+        if (!result?.ok || result.error) {
+          throw new Error("Invalid email or password");
+        }
+
+        const session = await getSession();
+        if (!session?.user) {
+          throw new Error("Unable to load your session. Please try again.");
+        }
+
+        router.push(
+          hasExplicitRedirect
+            ? redirectTo
+            : session.user.onboarded
+              ? dashboardHref(session.user.role)
+              : redirectTo,
+        );
       }
     } catch (error: unknown) {
       console.log(error);
-      setError(error?.message as string);
+      setError(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -174,19 +197,21 @@ export function AuthForm({
                   className="input"
                 />
               </label>
-              <label htmlFor="name" className="form-label">
-                Your Name
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  autoComplete="name"
-                  className="input"
-                />
-              </label>
+              {isSignup && (
+                <label htmlFor="name" className="form-label">
+                  Your Name
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                    autoComplete="name"
+                    className="input"
+                  />
+                </label>
+              )}
             </>
           )}
         </div>
@@ -208,11 +233,13 @@ export function AuthForm({
       <p className="auth-footer">
         {isSignup ? (
           <>
-            Already have an account? <Link href="/login">Sign in</Link>
+            Already have an account?{" "}
+            <Link href={`/login${authSwitchSearch}`}>Sign in</Link>
           </>
         ) : (
           <>
-            Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+            Don&apos;t have an account?{" "}
+            <Link href={`/signup${authSwitchSearch}`}>Sign up</Link>
           </>
         )}
       </p>

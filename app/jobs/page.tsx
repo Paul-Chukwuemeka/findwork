@@ -118,8 +118,15 @@ export default async function JobsPage({
                 >
                   <div>
                     <h2 className="jobs-list__title">{job.title}</h2>
-                    <p className="jobs-list__company">
-                      {job.company.name} · {job.location}
+                    <Link
+                      href={`/company/${job.company.slug}`}
+                      className="jobs-list__company"
+                      style={{ color: "#0066cc", textDecoration: "none" }}
+                    >
+                      {job.company.name}
+                    </Link>
+                    <p className="jobs-list__company" style={{ color: "inherit", marginTop: "0.25rem" }}>
+                      {job.location}
                     </p>
                     <p className="tag-line">
                       {formatJobType(job.type)}

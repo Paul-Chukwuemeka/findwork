@@ -44,6 +44,7 @@ model User {
   savedJobs     SavedJob[]
   alertSubs     AlertSub[]
   apiKeys       ApiKey[]
+  resumes       Resume[]
 }
 
 model Company {
@@ -129,6 +130,16 @@ model ApiKey {
   createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  url       String
+  fileName  String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // NextAuth required tables

@@ -61,12 +61,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.onboarded = user.onboarded
       }
       return token;
     },
   session({ session, token }) {
       session.user.id = token.id as string;
       session.user.role = token.role as any ;
+      session.user.onboarded = token.onboarded as boolean;
       return session;
     },
     async redirect({ url, baseUrl }) {

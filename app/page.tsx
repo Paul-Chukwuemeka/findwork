@@ -149,9 +149,14 @@ export default async function HomePage() {
           <p className="landing-companies__label">Companies on FindWork</p>
           <div className="landing-companies__list">
             {companies.map((c) => (
-              <span key={c.id || c.name} className="pill">
+              <Link
+                key={c.id || c.name}
+                href={`/company/${c.slug}`}
+                className="pill"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 {c.name}
-              </span>
+              </Link>
             ))}
           </div>
         </div>

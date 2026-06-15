@@ -2,13 +2,23 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SiteNav } from "@/components/SiteNav";
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.user?.onboarded) {
+      router.push(
+        session.user.role === "EMPLOYER"
+          ? "/employer/dashboard"
+          : "/developer/dashboard",
+      );
+    }
+  }, [session, router]);
 
   async function pickRole(role: "EMPLOYER" | "DEVELOPER") {
     setLoading(true);

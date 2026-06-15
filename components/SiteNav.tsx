@@ -9,7 +9,7 @@ type SiteNavProps = {
 };
 
 function dashboardHref(role?: string) {
-  return role === "EMPLOYER" ? "/employer/jobs/new" : "/developer/dashboard";
+  return role === "EMPLOYER" ? "/employer/dashboard" : "/developer/dashboard";
 }
 
 export function SiteNav({ active, showAuth = true }: SiteNavProps) {
@@ -46,7 +46,7 @@ export function SiteNav({ active, showAuth = true }: SiteNavProps) {
                       href={dashboardHref(session.user.role)}
                       className="site-nav__link"
                     >
-                      <span className="capitalize bg-red-500 border">
+                      <span className="capitalize">
                         {session.user.role.toLowerCase()}
                       </span>{" "}
                       Dashboard
