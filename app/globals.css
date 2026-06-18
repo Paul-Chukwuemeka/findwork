@@ -204,6 +204,7 @@ a {
   color: #555;
   text-decoration: none;
   transition: color 0.15s ease;
+  white-space: nowrap;
   span {
     text-transform: capitalize;
   }
@@ -239,6 +240,7 @@ a {
   justify-content: center;
   text-decoration: none;
   text-align: center;
+  white-space: nowrap;
   transition:
     background 0.15s ease,
     border-color 0.15s ease;

@@ -18,7 +18,7 @@ export function SiteNav({ active, showAuth = true }: SiteNavProps) {
   const isLoggedIn = status === "authenticated" && !!session?.user;
   console.log(session?.user);
   return (
-    <nav className="">
+    <nav className="site-nav">
       <div className="site-nav__inner">
         <Link href="/" className="site-nav__brand">
           FindWork
