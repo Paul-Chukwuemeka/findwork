@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
+import { EmployerNav } from "@/components/EmployerNav";
+import ApplicationsManager from "./ApplicationsManager";
 
 export default async function EmployerDashboard() {
   const session = await auth();
@@ -37,7 +39,8 @@ export default async function EmployerDashboard() {
   ]);
 
   return (
-    <PageShell>
+    <PageShell active="dashboard">
+      <EmployerNav />
       <h1 className="heading-page">Employer Dashboard</h1>
       <p className="page-subtitle">Manage your companies and job postings</p>
 
@@ -85,32 +88,17 @@ export default async function EmployerDashboard() {
       </section>
 
       <section className="section" style={{ marginTop: "2rem" }}>
-        <h2 className="heading-section">Recent Applications ({applications.length})</h2>
+        <h2 className="heading-section" style={{ marginBottom: "1rem" }}>
+          Recent Applications ({applications.length})
+        </h2>
 
         {applications.length === 0 ? (
           <p className="body-text">No applications yet.</p>
         ) : (
-          <div className="stack-12">
-            {applications.map((app) => (
-              <div key={app.id} className="card row-between">
-                <div>
-                  <p className="card-title">{app.user.name}</p>
-                  <p className="card-meta">{app.user.email}</p>
-                  <p className="card-meta" style={{ marginTop: "0.5rem" }}>
-                    Applied for:{" "}
-                    <Link href={`/jobs/${app.job.slug}`} style={{ color: "#007bff" }}>
-                      {app.job.title}
-                    </Link>
-                  </p>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <p className="card-meta">{new Date(app.createdAt).toLocaleDateString()}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ApplicationsManager initialApplications={applications} />
         )}
       </section>
     </PageShell>
   );
 }
+

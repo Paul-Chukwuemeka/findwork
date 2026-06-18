@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import { db } from "@/lib/db";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { Role } from "@prisma/client";
 
 const resendApiKey =
   process.env.AUTH_RESEND_KEY ??
@@ -16,10 +17,6 @@ if (!resendApiKey) {
   );
 }
 
-enum Role{
-  Employer,
-  Developer
-}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -57,18 +54,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.onboarded = user.onboarded
+        token.onboarded = user.onboarded;
+      } else if (token.id) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true, onboarded: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.onboarded = dbUser.onboarded;
+        }
       }
       return token;
     },
-  session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.role = token.role as any ;
-      session.user.onboarded = token.onboarded as boolean;
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as Role;
+        session.user.onboarded = token.onboarded as boolean;
+      }
       return session;
     },
     async redirect({ url, baseUrl }) {

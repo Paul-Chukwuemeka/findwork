@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
+import { dispatchJobAlerts } from "@/lib/alerts";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -20,6 +21,11 @@ export async function POST(req: Request) {
 
   const job = await db.job.create({
     data: { companyId, title, slug, description, type, location, salaryRange, tags },
+  });
+
+  // Trigger alerts in background (non-blocking)
+  dispatchJobAlerts(job).catch((err) => {
+    console.error("Failed to dispatch job alerts:", err);
   });
 
   return NextResponse.json(job);

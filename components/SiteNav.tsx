@@ -4,7 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
 type SiteNavProps = {
-  active?: "jobs" | "companies" | "api";
+  active?: "jobs" | "companies" | "api" | "profile" | "dashboard";
   showAuth?: boolean;
 };
 
@@ -31,7 +31,7 @@ export function SiteNav({ active, showAuth = true }: SiteNavProps) {
             Browse jobs
           </Link>
           <Link
-            href="/api/v1/jobs"
+            href="/api"
             className={`site-nav__link${active === "api" ? " site-nav__link--active" : ""}`}
           >
             API
@@ -42,15 +42,25 @@ export function SiteNav({ active, showAuth = true }: SiteNavProps) {
               {isLoggedIn ? (
                 <>
                   {session.user.onboarded && (
-                    <Link
-                      href={dashboardHref(session.user.role)}
-                      className="site-nav__link"
-                    >
-                      <span className="capitalize">
-                        {session.user.role.toLowerCase()}
-                      </span>{" "}
-                      Dashboard
-                    </Link>
+                    <>
+                      <Link
+                        href={dashboardHref(session.user.role)}
+                        className={`site-nav__link${active === "dashboard" ? " site-nav__link--active" : ""}`}
+                      >
+                        <span className="capitalize">
+                          {session.user.role.toLowerCase()}
+                        </span>{" "}
+                        Dashboard
+                      </Link>
+                      {session.user.role === "DEVELOPER" && (
+                        <Link
+                          href="/developer/profile"
+                          className={`site-nav__link${active === "profile" ? " site-nav__link--active" : ""}`}
+                        >
+                          Profile
+                        </Link>
+                      )}
+                    </>
                   )}
                   <button
                     type="button"

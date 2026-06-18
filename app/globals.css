@@ -901,14 +901,43 @@ a {
 }
 
 .search-panel__grid {
-  display: grid;
-  grid-template-columns: 1fr 160px 140px auto;
-  gap: 8px;
-  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
 }
 
 .search-panel__field {
   margin: 0;
+  flex: 1 1 150px;
+}
+
+.search-panel__field--search {
+  flex: 2 1 220px;
+}
+
+.search-panel__field--checkbox {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  margin-top: auto;
+}
+
+.search-panel__checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.search-panel__checkbox-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
 }
 
 .jobs-section__label {
@@ -927,7 +956,8 @@ a {
   border-top: 1px solid #e5e5e5;
 }
 
-.jobs-list__link {
+.jobs-list__link,
+.jobs-list__item {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
@@ -939,8 +969,47 @@ a {
   transition: background 0.15s ease;
 }
 
-.jobs-list__link:hover {
+.jobs-list__link:hover,
+.jobs-list__item:hover {
   background: #f5f5f5;
+}
+
+.jobs-list__item {
+  position: relative;
+}
+
+.jobs-list__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.jobs-list__title-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.jobs-list__company-link {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+  color: #0066cc;
+  text-decoration: none;
+  margin: 0 0 8px;
+  line-height: 1.5;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+.jobs-list__company-link:hover {
+  text-decoration: underline;
 }
 
 .jobs-list__title {
@@ -1000,4 +1069,126 @@ a {
   max-width: 360px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Premium Landing Search Bar */
+.landing-search-bar {
+  margin: 32px auto 20px;
+  max-width: 600px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 6px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.landing-search-bar:focus-within {
+  border-color: #111;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.landing-search-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.landing-search-bar__field {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.landing-search-bar__icon {
+  font-size: 16px;
+  color: #999;
+}
+
+.landing-search-bar__input {
+  border: none;
+  outline: none;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #111;
+  width: 100%;
+  padding: 8px 0;
+  background: transparent;
+}
+
+.landing-search-bar__input::placeholder {
+  color: #999;
+}
+
+.landing-search-bar__divider {
+  width: 1px;
+  height: 24px;
+  background-color: #e5e5e5;
+}
+
+.landing-search-bar__button {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Category Filters */
+.landing-categories {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.landing-categories__label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  color: #666;
+}
+
+.landing-categories__list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.landing-category-pill {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  color: #444;
+  background: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.landing-category-pill:hover {
+  background: #e5e5e5;
+  color: #111;
+}
+
+@media (max-width: 600px) {
+  .landing-search-bar__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .landing-search-bar__divider {
+    display: none;
+  }
+  .landing-search-bar__field {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 8px 12px;
+  }
+  .landing-search-bar__field:last-of-type {
+    border-bottom: none;
+  }
+  .landing-search-bar__button {
+    margin-top: 4px;
+    width: 100%;
+  }
 }

@@ -34,6 +34,11 @@ model User {
   image         String?
   role          Role          @default(DEVELOPER)
   resumeUrl     String?
+  githubUrl     String?
+  linkedinUrl   String?
+  portfolioUrl  String?
+  bio           String?
+  skills        String[]
   onboarded     Boolean       @default(false)
   createdAt     DateTime      @default(now())
 
@@ -137,6 +142,7 @@ model Resume {
   userId    String
   url       String
   fileName  String
+  isPrimary Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

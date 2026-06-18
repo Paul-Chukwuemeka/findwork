@@ -10,12 +10,13 @@ async function validateApiKey() {
   return db.apiKey.findUnique({ where: { key } });
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const apiKey = await validateApiKey();
   if (!apiKey) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const job = await db.job.findUnique({
-    where: { id: params.id, isActive: true },
+    where: { id, isActive: true },
     include: { company: true },
   });
 

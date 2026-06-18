@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { formatJobType } from "@/lib/format";
+import { EmployerNav } from "@/components/EmployerNav";
 
 const JOB_TYPES = ["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP"];
 
@@ -52,7 +53,8 @@ export default function NewJobPage() {
   }
 
   return (
-    <PageShell medium>
+    <PageShell active="dashboard" medium>
+      <EmployerNav />
       <p className="label-upper">Post a role</p>
       <h1 className="heading-page">Post a job</h1>
       <p className="page-subtitle">

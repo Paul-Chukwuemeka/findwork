@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { ApplicationStatus } from "@/components/ApplicationStatus";
+import { DeveloperNav } from "@/components/DeveloperNav";
 
 export default async function DeveloperDashboard() {
   const session = await auth();
@@ -24,9 +25,11 @@ export default async function DeveloperDashboard() {
   ]);
 
   return (
-    <PageShell>
+    <PageShell active="dashboard">
       <h1 className="heading-page">My dashboard</h1>
       <p className="page-subtitle">Applications and saved jobs</p>
+      
+      <DeveloperNav />
 
       <section className="section">
         <h2 className="heading-section">

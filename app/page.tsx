@@ -72,13 +72,52 @@ export default async function HomePage() {
             Connecting developers with companies in Lagos, Nairobi, Accra, Cape
             Town, and beyond.
           </p>
-          <div className="landing-actions">
-            <Link href="/jobs" className="btn btn-primary">
-              Browse open roles
-            </Link>
-            <Link href="/signup" className="btn btn-secondary">
-              Post a job
-            </Link>
+          <form action="/jobs" method="GET" className="landing-search-bar">
+            <div className="landing-search-bar__inner">
+              <div className="landing-search-bar__field">
+                <span className="landing-search-bar__icon">🔍</span>
+                <input
+                  name="q"
+                  placeholder="Search roles, skills..."
+                  className="landing-search-bar__input"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="landing-search-bar__divider"></div>
+              <div className="landing-search-bar__field">
+                <span className="landing-search-bar__icon">📍</span>
+                <input
+                  name="location"
+                  placeholder="City or Remote..."
+                  className="landing-search-bar__input"
+                  autoComplete="off"
+                />
+              </div>
+              <button type="submit" className="btn btn-primary landing-search-bar__button">
+                Search
+              </button>
+            </div>
+          </form>
+
+          <div className="landing-categories">
+            <span className="landing-categories__label">Popular:</span>
+            <div className="landing-categories__list">
+              <Link href="/jobs?q=React" className="landing-category-pill">
+                React
+              </Link>
+              <Link href="/jobs?q=Node" className="landing-category-pill">
+                Node.js
+              </Link>
+              <Link href="/jobs?location=Remote" className="landing-category-pill">
+                Remote
+              </Link>
+              <Link href="/jobs?q=Python" className="landing-category-pill">
+                Python
+              </Link>
+              <Link href="/jobs?q=Design" className="landing-category-pill">
+                Design
+              </Link>
+            </div>
           </div>
         </section>
 

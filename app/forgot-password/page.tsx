@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -8,19 +8,11 @@ import Loader from "@/components/loader";
 
 function ForgotPasswordForm() {
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => searchParams.get("email") || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [debugLink, setDebugLink] = useState<string | null>(null);
-
-  // Pre-fill email from query param if available
-  useEffect(() => {
-    const emailParam = searchParams.get("email");
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,8 +46,9 @@ function ForgotPasswordForm() {
       if (data.link) {
         setDebugLink(data.link);
       }
-    } catch (err: any) {
-      setError(err.message ?? "Something went wrong. Please try again.");
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(errMsg);
     } finally {
       setLoading(false);
     }

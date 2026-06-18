@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
+import { useSession } from "next-auth/react";
 
 export default function NewCompanyPage() {
+  const { update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -47,6 +49,14 @@ export default function NewCompanyPage() {
       });
 
       if (!companyRes.ok) throw new Error("Company creation failed");
+
+      // Mark employer as onboarded
+      await fetch("/api/user/onboard", {
+        method: "PATCH",
+        body: JSON.stringify({ onboarded: true }),
+        headers: { "Content-Type": "application/json" },
+      });
+      await update();
 
       router.push("/employer/jobs/new");
     } catch {

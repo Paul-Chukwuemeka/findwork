@@ -85,8 +85,8 @@ export async function POST(req: Request) {
           emailError = await emailRes.text();
           console.error("Resend API returned error:", emailError);
         }
-      } catch (err: any) {
-        emailError = err.message;
+      } catch (err) {
+        emailError = err instanceof Error ? err.message : "Unknown error";
         console.error("Failed to send email via Resend:", err);
       }
     } else {
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
       emailSent,
       link: isDev ? resetLink : undefined,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Forgot password error:", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },

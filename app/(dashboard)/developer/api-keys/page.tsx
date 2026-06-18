@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/PageShell";
+import { DeveloperNav } from "@/components/DeveloperNav";
 
 type ApiKey = {
   id: string;
@@ -22,8 +23,19 @@ export default function ApiKeysPage() {
   }
 
   useEffect(() => {
-    load();
+    Promise.resolve().then(() => {
+      load();
+    });
   }, []);
+
+  async function deleteKey(id: string) {
+    await fetch("/api/user/api-keys", {
+      method: "DELETE",
+      body: JSON.stringify({ id }),
+      headers: { "Content-Type": "application/json" },
+    });
+    load();
+  }
 
   async function generate() {
     const res = await fetch("/api/user/api-keys", {
@@ -37,22 +49,15 @@ export default function ApiKeysPage() {
     load();
   }
 
-  async function deleteKey(id: string) {
-    await fetch("/api/user/api-keys", {
-      method: "DELETE",
-      body: JSON.stringify({ id }),
-      headers: { "Content-Type": "application/json" },
-    });
-    load();
-  }
-
   return (
-    <PageShell medium>
+    <PageShell active="dashboard" medium>
       <h1 className="heading-page">API keys</h1>
       <p className="page-subtitle">
         Use these keys to access the FindWork public API. Pass as:{" "}
         <code className="code">Authorization: Bearer &lt;key&gt;</code>
       </p>
+
+      <DeveloperNav />
 
       {newKey && (
         <div className="notice">

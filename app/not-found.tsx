@@ -38,7 +38,7 @@ export default function NotFound() {
       {!session?.user ? (
         <div>
           <p style={{ marginBottom: "1.5rem" }}>
-            The page you're looking for doesn't exist.
+            The page you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link
             href="/"

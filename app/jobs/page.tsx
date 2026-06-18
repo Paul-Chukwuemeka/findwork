@@ -3,6 +3,7 @@ import { JobType } from "@prisma/client";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { formatJobType } from "@/lib/format";
+import { SubscribeAlertButton } from "@/components/SubscribeAlertButton";
 
 export const revalidate = 60;
 
@@ -12,6 +13,9 @@ type JobsSearchParams = {
   q?: string | string[];
   type?: string | string[];
   location?: string | string[];
+  remote?: string | string[];
+  salary?: string | string[];
+  page?: string | string[];
 };
 
 function firstParam(value: string | string[] | undefined) {
@@ -27,43 +31,86 @@ export default async function JobsPage({
   const q = firstParam(params.q);
   const type = firstParam(params.type);
   const location = firstParam(params.location);
+  const remote = firstParam(params.remote);
+  const salary = firstParam(params.salary);
+  const page = Math.max(1, parseInt(firstParam(params.page) || "1", 10));
+  const pageSize = 10;
+  const skip = (page - 1) * pageSize;
+
   const selectedType =
     type && Object.values(JobType).includes(type as JobType)
       ? (type as JobType)
       : undefined;
 
-  const jobs = await db.job.findMany({
-    where: {
-      isActive: true,
-      ...(q && {
-        OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { tags: { has: q } },
-        ],
-      }),
-      ...(selectedType && { type: selectedType }),
-      ...(location && { location: { contains: location, mode: "insensitive" } }),
-    },
-    include: { company: { select: { name: true, slug: true, logoUrl: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+  const whereClause = {
+    isActive: true,
+    ...(q && {
+      OR: [
+        { title: { contains: q, mode: "insensitive" as const } },
+        { tags: { has: q } },
+      ],
+    }),
+    ...(selectedType && { type: selectedType }),
+    ...(location && { location: { contains: location, mode: "insensitive" as const } }),
+    ...(remote === "true" && {
+      OR: [
+        { location: { contains: "remote", mode: "insensitive" as const } },
+        { title: { contains: "remote", mode: "insensitive" as const } },
+      ],
+    }),
+    ...(salary === "paid" && {
+      AND: [
+        { salaryRange: { not: null } },
+        { salaryRange: { not: "" } },
+      ],
+    }),
+    ...(salary === "50k" && {
+      AND: [
+        { salaryRange: { not: null } },
+        {
+          OR: [
+            { salaryRange: { contains: "5" } },
+            { salaryRange: { contains: "6" } },
+            { salaryRange: { contains: "7" } },
+            { salaryRange: { contains: "8" } },
+            { salaryRange: { contains: "9" } },
+            { salaryRange: { contains: "1" } },
+          ],
+        },
+      ],
+    }),
+  };
 
-  const hasFilters = Boolean(q || location || selectedType);
+  const [jobs, totalJobs] = await Promise.all([
+    db.job.findMany({
+      where: whereClause,
+      include: { company: { select: { name: true, slug: true, logoUrl: true } } },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: pageSize,
+    }),
+    db.job.count({
+      where: whereClause,
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalJobs / pageSize);
+  const hasFilters = Boolean(q || location || selectedType || remote || salary);
 
   return (
     <PageShell active="jobs" medium>
-      <header className="page-header">
+      <header className="page-header" style={{ marginBottom: 24 }}>
         <p className="label-upper">Job listings</p>
         <h1 className="heading-page">Tech jobs in Africa</h1>
-        <p className="page-subtitle">
-          {jobs.length} open {jobs.length === 1 ? "position" : "positions"}
+        <p className="page-subtitle" style={{ marginBottom: 12 }}>
+          {totalJobs} open {totalJobs === 1 ? "position" : "positions"}
         </p>
+        <SubscribeAlertButton query={q} location={location} />
       </header>
 
-      <form className="search-panel">
+      <form className="search-panel" method="GET" action="/jobs">
         <div className="search-panel__grid">
-          <div className="form-field search-panel__field">
+          <div className="form-field search-panel__field search-panel__field--search">
             <label htmlFor="q" className="form-label">
               Search
             </label>
@@ -100,7 +147,30 @@ export default async function JobsPage({
               ))}
             </select>
           </div>
-          <button type="submit" className="btn btn-primary">
+          <div className="form-field search-panel__field">
+            <label htmlFor="salary" className="form-label">
+              Salary
+            </label>
+            <select id="salary" name="salary" defaultValue={salary ?? ""} className="select">
+              <option value="">All Salaries</option>
+              <option value="paid">Paid only</option>
+              <option value="50k">$50k+/year</option>
+            </select>
+          </div>
+          <div className="search-panel__field search-panel__field--checkbox">
+            <input
+              id="remote"
+              name="remote"
+              type="checkbox"
+              value="true"
+              defaultChecked={remote === "true"}
+              className="search-panel__checkbox-input"
+            />
+            <label htmlFor="remote" className="search-panel__checkbox-label">
+              Remote Only
+            </label>
+          </div>
+          <button type="submit" className="btn btn-primary" style={{ height: "38px" }}>
             Search
           </button>
         </div>
@@ -111,17 +181,22 @@ export default async function JobsPage({
           <>
             <div className="jobs-list">
               {jobs.map((job) => (
-                <Link
+                <div
                   key={job.id}
-                  href={`/jobs/${job.slug}`}
-                  className="jobs-list__link"
+                  className="jobs-list__item"
                 >
                   <div>
-                    <h2 className="jobs-list__title">{job.title}</h2>
+                    <h2 className="jobs-list__title">
+                      <Link
+                        href={`/jobs/${job.slug}`}
+                        className="jobs-list__title-link"
+                      >
+                        {job.title}
+                      </Link>
+                    </h2>
                     <Link
                       href={`/company/${job.company.slug}`}
-                      className="jobs-list__company"
-                      style={{ color: "#0066cc", textDecoration: "none" }}
+                      className="jobs-list__company-link"
                     >
                       {job.company.name}
                     </Link>
@@ -146,9 +221,57 @@ export default async function JobsPage({
                       year: "numeric",
                     })}
                   </time>
-                </Link>
+                </div>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="pagination" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", marginTop: "32px" }}>
+                {page > 1 ? (
+                  <Link
+                    href={`/jobs?${new URLSearchParams({
+                      ...(q && { q }),
+                      ...(location && { location }),
+                      ...(type && { type }),
+                      ...(remote && { remote }),
+                      ...(salary && { salary }),
+                      page: String(page - 1),
+                    }).toString()}`}
+                    className="btn btn-secondary"
+                  >
+                    ← Previous
+                  </Link>
+                ) : (
+                  <button className="btn btn-secondary" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
+                    ← Previous
+                  </button>
+                )}
+
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "#666" }}>
+                  Page {page} of {totalPages}
+                </span>
+
+                {page < totalPages ? (
+                  <Link
+                    href={`/jobs?${new URLSearchParams({
+                      ...(q && { q }),
+                      ...(location && { location }),
+                      ...(type && { type }),
+                      ...(remote && { remote }),
+                      ...(salary && { salary }),
+                      page: String(page + 1),
+                    }).toString()}`}
+                    className="btn btn-secondary"
+                  >
+                    Next →
+                  </Link>
+                ) : (
+                  <button className="btn btn-secondary" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
+                    Next →
+                  </button>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <div className="empty-state">

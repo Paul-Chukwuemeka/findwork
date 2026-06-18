@@ -27,7 +27,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protected routes - require authentication
   const protectedRoutes = [
     "/developer",
     "/employer",

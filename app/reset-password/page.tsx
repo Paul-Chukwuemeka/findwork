@@ -13,8 +13,15 @@ function ResetPasswordForm() {
   const token = searchParams.get("token");
   const email = searchParams.get("email");
 
-  const [validating, setValidating] = useState(true);
-  const [validationError, setValidationError] = useState("");
+  const [validationError, setValidationError] = useState(() => {
+    if (!token || !email) {
+      return "Missing reset token or email address in URL.";
+    }
+    return "";
+  });
+  const [validating, setValidating] = useState(() => {
+    return !(!token || !email);
+  });
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,8 +32,6 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     if (!token || !email) {
-      setValidationError("Missing reset token or email address in URL.");
-      setValidating(false);
       return;
     }
 
@@ -44,8 +49,9 @@ function ResetPasswordForm() {
         if (!data.valid) {
           throw new Error(data.error ?? "Invalid reset link.");
         }
-      } catch (err: any) {
-        setValidationError(err.message ?? "Invalid or expired reset link.");
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "Invalid or expired reset link.";
+        setValidationError(errMsg);
       } finally {
         setValidating(false);
       }
@@ -99,8 +105,9 @@ function ResetPasswordForm() {
       setTimeout(() => {
         router.push("/login");
       }, 3000);
-    } catch (err: any) {
-      setError(err.message ?? "Something went wrong. Please try again.");
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(errMsg);
     } finally {
       setSubmitting(false);
     }

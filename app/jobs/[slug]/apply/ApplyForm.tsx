@@ -33,7 +33,7 @@ export function ApplyForm({
   const [uploadError, setUploadError] = useState("");
   const [loadingResumes, setLoadingResumes] = useState(true);
 
-  const fileRef = useRef(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const VALID_RESUME_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
