@@ -4,7 +4,7 @@ import { SiteNav } from "./SiteNav";
 
 type PageShellProps = {
   children: React.ReactNode;
-  active?: "jobs" | "companies" | "api" | "profile" | "dashboard";
+  active?: "jobs" | "companies" | "api" | "profile" | "dashboard" | "admin";
   showAuth?: boolean;
   narrow?: boolean;
   medium?: boolean;

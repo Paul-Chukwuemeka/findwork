@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
-import { ApplicationStatus } from "@/components/ApplicationStatus";
+import DeveloperApplicationsManager from "./DeveloperApplicationsManager";
 import { DeveloperNav } from "@/components/DeveloperNav";
 
 export default async function DeveloperDashboard() {
@@ -43,21 +43,7 @@ export default async function DeveloperDashboard() {
             </Link>
           </p>
         )}
-        <div className="stack-12" style={{ marginTop: 16 }}>
-          {applications.map((app) => (
-            <div key={app.id} className="card row-between">
-              <div>
-                <Link href={`/jobs/${app.job.slug}`} className="card-link">
-                  <p className="card-title">{app.job.title}</p>
-                </Link>
-                <p className="card-meta" style={{ color: "#555" }}>
-                  {app.job.company.name} · {app.job.location}
-                </p>
-              </div>
-              <ApplicationStatus status={app.status} />
-            </div>
-          ))}
-        </div>
+        <DeveloperApplicationsManager applications={applications} />
       </section>
 
       <section className="section">

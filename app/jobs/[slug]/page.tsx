@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ApplyButton from "./applybutton";
-import SaveButton from "./SaveButton";
+import SaveButton from "@/components/SaveButton";
+import ReportJobButton from "@/components/ReportJobButton";
 import { PageShell } from "@/components/PageShell";
 import { formatJobType } from "@/lib/format";
 
@@ -62,9 +63,10 @@ export default async function JobPage({
         </p>
       )}
 
-      <div className="row-wrap">
+      <div className="row-wrap" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
         <ApplyButton jobSlug={job.slug} alreadyApplied={!!application} />
         <SaveButton jobId={job.id} initialSaved={!!savedJob} />
+        <ReportJobButton jobId={job.id} />
       </div>
 
       <section className="section" style={{ marginTop: "2rem", borderTop: "1px solid #eee", paddingTop: "2rem" }}>

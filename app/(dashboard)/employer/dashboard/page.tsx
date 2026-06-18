@@ -31,7 +31,18 @@ export default async function EmployerDashboard() {
       },
       include: {
         job: { include: { company: true } },
-        user: { select: { id: true, name: true, email: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            bio: true,
+            skills: true,
+            githubUrl: true,
+            linkedinUrl: true,
+            portfolioUrl: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
       take: 50,
@@ -64,11 +75,11 @@ export default async function EmployerDashboard() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                   <div style={{ flex: 1 }}>
                     <Link href={`/employer/company/${company.id}`} className="card-link">
-                      <p className="card-title">{company.name}</p>
+                      <p className="card-title" style={{ fontSize: "16px", fontWeight: "600" }}>{company.name}</p>
                     </Link>
                     {company.website && (
                       <p className="card-meta">
-                        <a href={company.website} target="_blank" rel="noopener noreferrer">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" style={{ color: "#0066cc", textDecoration: "none" }}>
                           {company.website}
                         </a>
                       </p>
@@ -77,9 +88,14 @@ export default async function EmployerDashboard() {
                       {company.jobs.length} active job{company.jobs.length === 1 ? "" : "s"}
                     </p>
                   </div>
-                  <Link href={`/employer/jobs/new?company=${company.id}`} className="btn btn-secondary">
-                    Post Job
-                  </Link>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <Link href={`/employer/company/${company.id}`} className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: "13px" }}>
+                      Edit Profile
+                    </Link>
+                    <Link href={`/employer/jobs/new?company=${company.id}`} className="btn btn-primary" style={{ padding: "6px 12px", fontSize: "13px" }}>
+                      Post Job
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

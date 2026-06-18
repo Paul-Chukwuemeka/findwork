@@ -4,11 +4,12 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
 type SiteNavProps = {
-  active?: "jobs" | "companies" | "api" | "profile" | "dashboard";
+  active?: "jobs" | "companies" | "api" | "profile" | "dashboard" | "admin";
   showAuth?: boolean;
 };
 
 function dashboardHref(role?: string) {
+  if (role === "ADMIN") return "/admin";
   return role === "EMPLOYER" ? "/employer/dashboard" : "/developer/dashboard";
 }
 
@@ -45,7 +46,7 @@ export function SiteNav({ active, showAuth = true }: SiteNavProps) {
                     <>
                       <Link
                         href={dashboardHref(session.user.role)}
-                        className={`site-nav__link${active === "dashboard" ? " site-nav__link--active" : ""}`}
+                        className={`site-nav__link${active === "dashboard" || active === "admin" ? " site-nav__link--active" : ""}`}
                       >
                         <span className="capitalize">
                           {session.user.role.toLowerCase()}

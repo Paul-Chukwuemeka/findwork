@@ -1,5 +1,6 @@
 "use client";
 
+import { Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -21,12 +22,16 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (session?.user?.onboarded) {
-      router.push(
-        session.user.role === "EMPLOYER"
-          ? "/employer/dashboard"
-          : "/developer/dashboard",
-      );
-    } else if (session?.user?.role === "EMPLOYER") {
+      if (session.user.role === Role.ADMIN) {
+        router.push("/admin");
+      } else {
+        router.push(
+          session.user.role === Role.EMPLOYER
+            ? "/employer/dashboard"
+            : "/developer/dashboard",
+        );
+      }
+    } else if (session?.user?.role === Role.EMPLOYER) {
       router.push("/employer/company/new");
     }
   }, [session, router]);

@@ -9,6 +9,7 @@ datasource db {
 enum Role {
   EMPLOYER
   DEVELOPER
+  ADMIN
 }
 
 enum JobType {
@@ -50,6 +51,7 @@ model User {
   alertSubs     AlertSub[]
   apiKeys       ApiKey[]
   resumes       Resume[]
+  reports       JobReport[]
 }
 
 model Company {
@@ -85,6 +87,7 @@ model Job {
   company      Company       @relation(fields: [companyId], references: [id])
   applications Application[]
   savedBy      SavedJob[]
+  reports      JobReport[]
 
   @@index([isActive, createdAt(sort: Desc)])
 }
@@ -146,6 +149,18 @@ model Resume {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JobReport {
+  id         String   @id @default(cuid())
+  jobId      String
+  reporterId String?
+  reason     String
+  details    String?
+  createdAt  DateTime @default(now())
+
+  job      Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  reporter User? @relation(fields: [reporterId], references: [id], onDelete: SetNull)
 }
 
 // NextAuth required tables

@@ -56,6 +56,17 @@ async function main() {
     },
   });
 
+  const admin = await prisma.user.create({
+    data: {
+      name: "Admin Moderator",
+      email: "admin@findwork.dev",
+      password,
+      role: Role.ADMIN,
+      onboarded: true,
+      createdAt: daysAgo(30),
+    },
+  });
+
   const developer = await prisma.user.create({
     data: {
       name: "Tunde Okafor",
@@ -280,6 +291,7 @@ async function main() {
   });
 
   console.log("Seeded development data:");
+  console.log(`- Admin: ${admin.email}`);
   console.log(`- Employer: ${employer.email}`);
   console.log(`- Developer: ${developer.email}`);
   console.log(`- Onboarding user: ${newDeveloper.email}`);

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { formatJobType } from "@/lib/format";
 import { SubscribeAlertButton } from "@/components/SubscribeAlertButton";
+import { auth } from "@/lib/auth";
+import SaveButton from "@/components/SaveButton";
 
 export const revalidate = 60;
 
@@ -27,6 +29,18 @@ export default async function JobsPage({
 }: {
   searchParams: Promise<JobsSearchParams>;
 }) {
+  const session = await auth();
+  const savedJobIds = session
+    ? new Set(
+        (
+          await db.savedJob.findMany({
+            where: { userId: session.user.id },
+            select: { jobId: true },
+          })
+        ).map((sj) => sj.jobId)
+      )
+    : new Set<string>();
+
   const params = await searchParams;
   const q = firstParam(params.q);
   const type = firstParam(params.type);
@@ -211,16 +225,19 @@ export default async function JobsPage({
                         : ""}
                     </p>
                   </div>
-                  <time
-                    className="jobs-list__date"
-                    dateTime={job.createdAt.toISOString()}
-                  >
-                    {new Date(job.createdAt).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </time>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "end", gap: "12px", position: "relative", zIndex: 2 }}>
+                    <time
+                      className="jobs-list__date"
+                      dateTime={job.createdAt.toISOString()}
+                    >
+                      {new Date(job.createdAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </time>
+                    <SaveButton jobId={job.id} initialSaved={savedJobIds.has(job.id)} variant="icon" />
+                  </div>
                 </div>
               ))}
             </div>
